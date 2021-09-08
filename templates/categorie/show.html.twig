@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+{% block title %}Categorie{% endblock %}
+{% block body %}
+<h1>Category: {{ categorie.label }}
+</h1>
+{% if is_granted('ROLE_ADMIN') %}
+<a href="{{ path('categorie_edit', {'id': categorie.id}) }}">Edit Name
+</a>
+{{ include('categorie/_delete_form.html.twig') }}
+{% endif %}
+<h1>Posts
+</h1>
+<table class="table">
+  <thead>
+    <tr>
+      {% if is_granted('ROLE_ADMIN') %}
+      <th>Id
+      </th>
+      <th>File
+      </th>
+      
+      <th>actions
+      </th>
+      {% endif %}
+      <th>Title
+      </th>
+      <th>Content
+      </th>
+      <th>date
+      </th>
+      <th>Likes
+      </th>
+      <th>replies
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for post in posts %}
+    <tr>
+      {% if is_granted('ROLE_ADMIN') %}
+      <td>{{ post.id }}
+      </td>
+      <td>
+        <a href="{{ asset('files/' ~ post.file) }}" alt="" width="100" height="100">{{ post.file}}
+        </a>
+      </td>
+      
+      <td>
+        
+        <a href="{{ path('post_edit', {'id': post.id}) }}">edit
+        </a>
+      </td>
+      {% endif %}
+      <td><a href="{{ path('post_show', {'id': post.id}) }}">{{ post.title }}</a>
+      </td>
+      <td>{{ post.content }}
+      </td>
+      <td>{{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}
+      </td>
+      <td>{{ post.likes|length }}
+      </td>
+      <td>
+{{ postcomments[loop.index0]|length }}      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="8">no posts found
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

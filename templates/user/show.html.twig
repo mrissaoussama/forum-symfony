@@ -1,0 +1,247 @@
+{% extends 'base.html.twig' %}
+{% block title %}User{% endblock %}
+{% block body %}
+<h1>User
+</h1>
+<table class="table">
+  <tbody>
+    {% if is_granted('ROLE_ADMIN') %}
+    <tr>
+      <th>Id
+      </th>
+      <td>{{ user.id }}
+      </td>
+    </tr>
+    {% endif %}
+    <tr>
+      <th>Username
+      </th>
+      <td>{{ user.username }}
+      </td>
+    </tr>
+    <tr>
+      <th>Email
+      </th>
+      <td>{{ user.email }}
+      </td>
+    </tr>
+    <tr>
+      <th>Total Liked posts
+      </th>
+      <td>{{ user.likedposts|length}}
+      </td>
+    </tr>
+    <tr>
+      <th>Total Posts
+      </th>
+      <td>{{ posts|length }}
+      </td>
+    </tr>
+    <tr>
+      <th>Total Liked comments
+      </th>
+      <td>{{ user.likedcomments|length }}
+      </td>
+    </tr>
+    <tr>
+      <th>Total comments
+      </th>
+      <td>{{ usercomments|length }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h1>Recent Posts
+</h1>
+<table class="table">
+  <thead>
+    <tr>
+      {% if is_granted('ROLE_ADMIN') %}
+      <th>Id
+      </th>
+      <th>File
+      </th>
+      <th>actions
+      </th>
+      {% endif %}
+      <th>Title
+      </th>
+      <th>Content
+      </th>
+      <th>date
+      </th>
+      <th>Likes
+      </th>
+      <th>replies
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for post in posts %}
+    <tr>
+      {% if is_granted('ROLE_ADMIN') %}
+      <td>{{ post.id }}
+      </td>
+      <td>
+        <a href="{{ asset('files/' ~ post.file) }}" alt="" width="100" height="100">{{ post.file}}
+        </a>
+      </td>
+      <td>
+        <a href="{{ path('post_edit', {'id': post.id}) }}">edit
+        </a>
+      </td>
+      {% endif %}
+      <td>
+        <a href="{{ path('post_show', {'id': post.id}) }}">{{ post.title }}
+        </a>
+      </td>
+      <td>{{ post.content }}
+      </td>
+      <td>{{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}
+      </td>
+      <td>{{ post.likes|length }}
+      </td>
+      <td>
+        {{ postcomments[loop.index0]|length }}      
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="8">no posts found
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h1>Recent Comments
+</h1>
+{% for comment in usercomments %}
+<table class='table' id="comments_table">
+  <tr id='commentcolumn' >
+    <td id="stats">
+      <div id='datacomment'>
+        <div class="inline" id='date'>
+          {{ comment.commentdate|date('Y-m-d H:i:s')}}
+        </div>
+        {% if comment.isaccepted %}
+        <div class="inline" id='isaccepted'>
+          <img src="{{ asset('files/' ~ 'accepted.png') }}" alt="" width="20" height="20">
+        </div>
+        {% endif %}
+        {% if comment.isdeleted == false %}
+        <div class="inline" id="deletecommentuser">
+          {% if is_granted('ROLE_USER') %}
+          {% if comment.iduser == app.user or is_granted("ROLE_ADMIN") %}
+          <form method="post" action="{{ path('comment_delete_user', {'id': comment.id  }) }}" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+            <input type="hidden" name="iduser" value="{{ user.id}}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.idpost) }}">
+
+            <button class="btn">  
+              <img src="{{ asset('files/delete.png') }}" id="like" alt="like" width="30" height="30">
+            </button>
+          </form>
+          {% endif %}
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </td>
+  </tr>
+  <tr >
+    <td >
+      {% if comment.isdeleted == false %}
+      <div id='content'>
+        {{ comment.content|trans|nl2br }}
+      </div>
+      {% else %}
+      [Deleted]
+      {% endif %}
+    </td>
+  </tr>
+  {% if comment.file is not null %}
+  <tr id="last">
+    <td id="attachment">
+      <div >
+        attachments:
+      </div>
+      <div="file">
+        <a href="{{ asset('files/' ~ comment.file) }}" alt="" width="100" height="100">{{ comment.file}}
+        </a>  
+      </div>
+    </td>
+  </tr>
+  {% endif %}
+</table>
+{% endfor %}
+<h1>Liked Posts
+</h1>
+<table class="table">
+  <thead>
+    <tr>
+      {% if is_granted('ROLE_ADMIN') %}
+      <th>Id
+      </th>
+      <th>File
+      </th>
+      <th>actions
+      </th>
+      {% endif %}
+      <th>Title
+      </th>
+      <th>Content
+      </th>
+      <th>date
+      </th>
+      <th>Likes
+      </th>
+      <th>replies
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for post in likedposts %}
+    <tr>
+      {% if is_granted('ROLE_ADMIN') %}
+      <td>{{ post.id }}
+      </td>
+      <td>
+        <a href="{{ asset('files/' ~ post.file) }}" alt="" width="100" height="100">{{ post.file}}
+        </a>
+      </td>
+      <td>
+        <a href="{{ path('post_edit', {'id': post.id}) }}">edit
+        </a>
+      </td>
+      {% endif %}
+      <td>
+        <a href="{{ path('post_show', {'id': post.id}) }}">{{ post.title }}
+        </a>
+      </td>
+      <td>{{ post.content }}
+      </td>
+      <td>{{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}
+      </td>
+      <td>{{ post.likes|length }}
+      </td>
+      <td>
+        {{ likedpostscomments[loop.index0]|length }}      
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="8">no posts found
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if is_granted('ROLE_ADMIN') %}
+<a href="{{ path('user_index') }}">back to list
+</a>
+{% endif %}
+{% if is_granted('ROLE_ADMIN') or user.id == app.user.id %}
+<a  href="{{ path('user_edit', {'id': user.id}) }}">edit
+</a>
+{{ include('user/_delete_form.html.twig') }}
+{% endif %}
+{% endblock %}

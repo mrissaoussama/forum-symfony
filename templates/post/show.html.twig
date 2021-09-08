@@ -1,0 +1,238 @@
+{% extends 'base.html.twig' %}
+{% block title %}Forum - {{ post.title }}{% endblock %}
+{% block body %}
+<style>
+  
+ 
+  
+</style>
+<div id="path">
+  <a href="{{ path('index') }}">Home
+  </a>->
+  <a href="{{ path('categorie_show', {'id': post.idcategorie.id}) }}">{{post.idcategorie.label}}
+  </a>->
+  {{ post.title }}
+</div>
+<h1>{{ post.title }}
+</h1>
+<table  class="table" id="current_post" >
+  <tr id='postercolumn'>
+    <td class='thing' rowspan='3'>
+      <div id='picture'>
+        {% if post.iduser.photo != null %}
+        <img src="{{ asset('userphotos/' ~ post.iduser.photo) }}" alt="" width="100" height="100">
+        {% else %}
+        <img src="{{ asset('userphotos/' ~ 'defaultphoto.png') }}" alt="" width="100" height="100">
+        {% endif %}
+      </div>
+      <div id='username'>
+        {{ post.iduser }}
+      </div>
+    </td>
+    <td id='datatd'>
+    <div  id="data">
+      <div class="inline" id='date'>
+        {{ post.postdate|date('Y-m-d H:i:s')}}
+      </div>
+      <div class="inline" id='likes'>
+        {{post.likes|length }}
+        {% if post.likes|length ==1 %}
+        like
+        {% else %}
+        likes
+        {% endif %}
+      </div>
+
+      <div class="inline" id="likebuttondiv">
+        {% if is_granted('ROLE_USER') %}
+        {% if liked %}
+        <a href="{{ path('post_unlike', {'id': post.id})}}" >
+          <img src="{{ asset('files/unlike.png') }}" id="unlike" alt="unlike" width="30" height="30">
+        </a>
+        {% endif %}  
+        {% if liked == false %}
+        <a href="{{ path('post_like', {'id': post.id}) }}">
+          <img src="{{ asset('files/like.png') }}" id="like" alt="like" width="30" height="30">
+        </a>
+        {% endif %}
+        {% endif %}
+      </div>
+      <div class="inline" id='views'>
+        {{ post.views }} 
+        {% if post.views==1 %}
+        view
+        {% else %}
+        views
+        {% endif %}
+      </div>
+      <div class="inline" id='replies'>
+        {{ comments|length }}
+        {% if comments|length ==1 %}
+        reply
+        {% else %}
+        replies
+        {% endif %}
+      </div>
+   
+      <div class="inline" id="edit">
+              {% if is_granted('ROLE_USER') %}
+        {% if (poster.id == app.user.id) %}
+        
+        <a href="{{ path('post_edit', {'id': post.id}) }}">
+            <img src="{{ asset('files/edit.png') }}" id="like" alt="like" width="30" height="30">
+        </a>
+        {% endif %}
+                {% endif %}
+
+      </div>
+                  {% if post.isdeleted == false %}
+      <div class="inline" id="delete">
+
+              {% if is_granted('ROLE_USER') %}
+        {% if (poster.id == app.user.id) or is_granted("ROLE_ADMIN") %}
+        {{ include('post/_delete_form.html.twig') }}
+        {% endif %}
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </div>
+    </td>
+  </tr>
+  <tr>
+    <td rowspan='' colspan=''>
+      <div id='content'>
+            {% if post.isdeleted %}
+        [Deleted]
+        {% else %}
+        {{ post.content|trans|nl2br }}
+        {% endif %}
+      </div>
+    </td>
+  </tr>
+          {% if post.file is not null %}
+
+  <tr>
+    <td colspan=''>
+      <div='attachments'>
+        attachments:
+      </div>
+
+      <div="file">
+        <a href="{{ asset('files/' ~ post.file) }}" alt="" width="100" height="100">{{ post.file}}
+        </a>  
+      </div>
+    </td>
+  </tr>
+  {% endif %}
+  </tbody>
+</table>
+{% set accepted = false %}
+{% for comment in comments %}
+{% if comment.isaccepted %}
+{% set accepted = true %}
+{% else %}
+{% set accepted = false %}
+{% endif %}
+{% endfor %}
+{% for comment in comments %}
+<table class='table' id="comments_table">
+  <tr id='commentcolumn' >
+    <td class='thing' rowspan='3'>
+      <div id='picture'>
+        {% if comment.iduser.photo is not null %}
+        <img src="{{ asset('userphotos/' ~ comment.iduser.photo) }}" alt="" width="100" height="100">
+        {% else %}
+        <img src="{{ asset('userphotos/' ~ 'defaultphoto.png') }}" alt="" width="100" height="100">
+        {% endif %}
+      </div>
+      <div id='username'>
+        {{ comment.iduser.username }}
+      </div>
+    </td>
+    <td id="stats">
+    <div id='datacomment'>
+
+      <div class="inline" id='date'>
+        {{ comment.commentdate|date('Y-m-d H:i:s')}}
+      </div>
+      {% if comment.isaccepted %}
+      <div class="inline" id='isaccepted'>
+        <img src="{{ asset('files/' ~ 'accepted.png') }}" alt="" width="20" height="20">
+      </div>
+      {% else %}
+      {% if app.user != null %}
+      {% if post.iduser.id == app.user.id %}
+      {% if accepted == false and comment.isdeleted == false %}
+      <div class="inline" id='setaccepted'>
+        <a href="{{ path('post_setacceptedanswer', {id: post.id, idcomment: comment.id}) }}">Choose as Accepted Answer
+        </a>
+      </div>
+      {% endif %}
+      {% endif %}
+      {% endif %}
+      {% endif %}
+                     {% if comment.isdeleted == false %}
+              {% if is_granted('ROLE_USER') %}
+        {% if comment.iduser == app.user or is_granted("ROLE_ADMIN") %}
+              <div class="inline" id="deletecomment">
+        {{ include('comment/_delete_form.html.twig') }}
+              </div>
+
+        {% endif %}
+        {% endif %}
+      {% endif %}
+          </div>
+    </td>
+  </tr>
+  <tr >
+    <td >
+                         {% if comment.isdeleted == false %}
+      <div id='content'>
+        {{ comment.content|trans|nl2br }}
+      </div>
+      {% else %}
+        [Deleted]
+        {% endif %}
+    </td>
+  </tr>
+        {% if comment.file is not null %}
+
+  <tr id="last">
+    <td id="attachment">
+      <div >
+        attachments:
+      </div>
+      <div="file">
+        <a href="{{ asset('files/' ~ comment.file) }}" alt="" width="100" height="100">{{ comment.file}}
+        </a>  
+      </div>
+    </td>
+  </tr>
+        {% endif %}
+
+</table>
+{% endfor %}
+      {% if post.isdeleted == false %}
+{% if is_granted('ROLE_USER') %}
+<div id="commentarea">
+  {{ form_start(form) }}
+  <div id="newcomment">
+    {{ form_row(form.content,{'attr': {'value': '' ,'class': 'textarea'}}, {
+    label: 'comment'
+    }) }}
+  </div>
+  <div id="newfile">
+    {{ form_row(form.file,{'attr': {'class': 'custom-file-input'}}, {
+    label: 'attachements'
+    }) }}
+  </div>
+  <div id="newcomment">
+    <button class="comment_but">{{ button_label|default('Comment') }}
+    </button>
+  </div>
+  {{ form_end(form) }}
+  {% endif %}
+    {% endif %}
+
+  {% endblock %}

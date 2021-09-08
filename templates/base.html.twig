@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {# Run `composer require symfony/webpack-encore-bundle`
+           and uncomment the following Encore helpers to start using Symfony UX #}
+           <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+            
+          		<link rel='stylesheet' href="{{ asset('css/style.css') }}">
+
+           
+        {% block stylesheets %}
+            {#{{ encore_entry_link_tags('app') }}#}
+        {% endblock %}
+
+        <script>
+        if ( window.history.replaceState ) {
+  window.history.replaceState( null, null, window.location.href );
+}
+
+</script>
+    </head>
+    <body> 
+    
+<nav class="navbar navbar-expand-lg navbar-light navbar-custom" style="margin:10px;border-radius:10px;background-color:#d0efff;">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ path('index') }}">Home<span class="sr-only"></span></a>
+      </li>
+            {% if is_granted('ROLE_USER') %}
+      <li class="nav-item">
+        <a class="nav-link" href="{{ path('user_show', {'id': app.user.id}) }}">Profile</a>
+      </li>
+       <li class="nav-item">
+        <a class="nav-link" href="{{ path('app_logout') }}">Logout</a>
+      </li>
+      {% if is_granted('ROLE_USER') %}
+       <li class="nav-item">
+        <a class="nav-link" href="{{ path('post_new') }}">Create Post</a>
+      </li>
+            {% endif %}
+      {% else %}
+        <li class="nav-item">
+        <a class="nav-link" href="{{ path('app_login') }}">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ path('app_register') }}">Register</a>
+      </li>
+      {% endif %}
+    </ul>
+    {% include '_search.html.twig' %}
+
+  </div>
+</nav>
+        {% block header %}   
+      {% endblock %} 
+
+        {% block body %}
+
+     {% endblock %}
+    </body>
+</html>

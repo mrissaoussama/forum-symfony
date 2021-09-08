@@ -1,0 +1,13 @@
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+       {% if categories is defined %}  
+      <select class="form-select" name="categorie" style="width:200px;" >
+              {% for categorie in categories %}
+      <option value='{{categorie.id}}'>{{categorie.label}}</option>
+              {% endfor %}
+</select>
+                 {% endif %}
+      <input class="btn btn-outline-success" name="search" id="searchsubmit" value="Search" type="submit">
+    
+    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

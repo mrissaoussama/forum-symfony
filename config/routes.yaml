@@ -1,0 +1,9 @@
+index:
+    path: /
+    controller: App\Controller\IndexController::index
+postr:
+  path: /post/{id}/like
+  controller: App\Controller\PostController::post_show
+  defaults:
+    path: /post/{id}
+    permanent: true

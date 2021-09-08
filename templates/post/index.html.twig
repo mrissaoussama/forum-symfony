@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Posts{% endblock %}
+
+{% block body %}
+                {% if search is defined %}
+             <h1>search results for {{search}}</h1>
+                {% else %}
+    <h1>Post</h1>
+                {% endif %}
+
+    <table class="table">
+        <thead>
+                {% if posts[0] is defined %}
+
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>File</th>
+                <th>Postdate</th>
+                <th>Likes</th>
+                <th>actions</th>
+            </tr>
+                            {% endif %}
+
+        </thead>
+        <tbody>
+        {% for post in posts %}
+            <tr>
+                <td>{{ post.id }}</td>
+                <td> <a href="{{ path('post_show', {'id': post.id}) }}">{{ post.title }}</a>
+</td>
+                <td>{{ post.content }}</td>
+		<td><a href="{{ asset('files/' ~ post.file) }}" alt="" width="100" height="100">{{ post.file}}</a></td>
+                                <td>{{ post.postdate ? post.postdate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ post.likes|length }}</td>
+{% if comments is defined %}
+
+                <td>
+                {{ comments|length }}
+                {% if comments|length ==1 %}
+                 reply
+                {% else %}
+                replies
+                {% endif %}
+                </td>
+                                {% endif %}
+
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no posts found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('post_new') }}">Create new</a>
+    
+{% endblock %}
